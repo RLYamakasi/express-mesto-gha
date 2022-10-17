@@ -13,8 +13,7 @@ module.exports.findUsers = (req, res) => {
 module.exports.postUser = (req, res) => {
   const {name,avatar,about} = req.body;
   const user = new users({name,avatar,about});
-  console.log(`name = '${name}', about = '${about}', avatar = '${avatar}'.`)
-  user
+  return user
   .save()
   .catch((err) => console.log(err))
 };
