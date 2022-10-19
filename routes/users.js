@@ -1,4 +1,6 @@
-const { findUsers,postUser,getUserById,patchUserInfo,patchUserAvatar } = require('../controllers/users');
+const {
+findUsers,postUser,getUserById,patchUserInfo,patchUserAvatar
+} = require('../controllers/users');
 const router = require('express').Router();
 const express = require('express');
 module.exports = router;
