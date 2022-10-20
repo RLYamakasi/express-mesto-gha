@@ -41,7 +41,9 @@ module.exports.patchUserInfo = (req, res) => {
   users.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true },
+    { new: true,
+      runValidators: true
+    },
   )
     .then((user) => res.send(user))
     .catch((err) => {

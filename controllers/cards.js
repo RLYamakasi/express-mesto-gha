@@ -18,11 +18,9 @@ module.exports.postCard = (req, res) => {
     .save()
     .then((cards) => res.send({ cards }))
     .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(404).send({ message: err.message });
-        return;
-      }
-      res.status(500).send(err);
+      res
+        .status(400)
+        .send({ message: err.message });
     });
   };
 
@@ -30,41 +28,42 @@ module.exports.deleteCard = (req, res) => {
   cards.findByIdAndRemove(req.params.cardId)
   .then(cards => res.send({ cards }))
   .catch((err) => {
-    if (err.name === "CastError") {
-      res.status(404).send({ message: err.message });
-      return;
-    }
-    res.status(500).send(err);
+    res
+      .status(400)
+      .send({ message: err.message });
   });
 };
+
 module.exports.setLikeToCard = (req, res) => {
   cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
+    { new: true,
+      runValidators: true },
   )
-    .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(404).send({ message: err.message });
-        return;
+    .then((cards) => {
+      if (!cards) {
+        return res.status(404).send({message:'Карточка по заданному id отсутствует в базе'})
       }
-      res.status(500).send(err);
-    });
-  };
+      return res.status(200).send({ cards})})
+    .catch((err) => {
+      return res.status(400).send({ message: err.message })
+    })
+    };
 
 module.exports.deleteLikeFromCard = (req, res) => {
   cards.findByIdAndUpdate(
     req.params.cardId,
   { $pull: { likes: req.user._id } },
-  { new: true },
+  { new: true,
+    runValidators: true },
 )
-    .then((cards) => res.send(cards))
-    .catch((err) => {
-      if (err.name === "CastError") {
-        res.status(404).send({ message: err.message });
-        return;
+    .then((cards) => {
+      if (!cards) {
+        return res.status(404).send({message:'Карточка по заданному id отсутствует в базе'})
       }
-      res.status(500).send(err);
-    });
-  };
+      return res.status(200).send({ cards})})
+    .catch((err) => {
+      return res.status(400).send({ message: err.message })
+})
+};
