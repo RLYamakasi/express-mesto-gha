@@ -35,7 +35,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb ',(err)=> {
   if(!err) console.log("harosh");
   else console.log("loh");
   // app.use('/*', NotFoundController);
-  router.get('/users', findUsers);
   app.use('/', routesUser);
   app.use('/', routesCard);
 });
