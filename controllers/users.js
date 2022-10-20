@@ -29,10 +29,10 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       res
         .status(400)
-        .send({ 'message': 'Запрашиваемый пользователь не найден' });
+        .send({ message: err.message });
       res
         .status(404)
-        .send({ 'message': 'Запрашиваемый пользователь не найден' });
+        .send({ message: err.message });
     });
 };
 
