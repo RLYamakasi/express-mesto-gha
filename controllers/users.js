@@ -4,6 +4,7 @@ const express = require('express');
 const app = express()
 module.exports = router;
 
+
 module.exports.findUsers = (req, res) => {
   users.find({})
     .then((user) => res.send({ user }))
@@ -25,14 +26,13 @@ module.exports.postUser = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   users.findById(req.params.id)
-    .orFail(() => {
-      const error = new Error('Пользователь по заданному id отсутствует в базе');
-      error.name = 'NotFoundError';
-      throw error;
-    })
-    .then((user) => res.send({ user }))
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send({message:'Пользователь по заданному id отсутствует в базе'})
+      }
+      return res.status(200).send({ user })})
     .catch((err) => {
-      res.send({ message: err.message});
+      return res.status(400).send({ message: err.message })
     })
 };
 
