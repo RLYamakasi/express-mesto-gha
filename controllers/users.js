@@ -47,7 +47,7 @@ module.exports.patchUserInfo = (req, res) => {
     .catch((err) => {
       res
         .status(400)
-        .send({ message: err.message })
+        .send({ message: err.message });
     });
 };
 

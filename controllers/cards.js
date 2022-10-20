@@ -5,7 +5,7 @@ const app = express()
 module.exports = router;
 
 module.exports.findCards = (req, res) => {
-   cards.find({})
+  cards.find({})
     .then((cards) => res.send({ cards }))
     .catch((err) => res.send({ message: err.message }));
 };
@@ -17,8 +17,8 @@ module.exports.postCard = (req, res) => {
   console.log(`name = '${name}', link = '${link}', likes= '${likes}'.`)
   card
     .save()
-    .then((user) => res.send({ user }))
-    .catch((err) => console.log(err))
+    .then((cards) => res.send({ cards }))
+    .catch((err) => res.send({ message: err.message }));
 
 };
 
@@ -35,7 +35,7 @@ module.exports.setLikeToCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((user) => res.send(user))
+    .then((cards) => res.send(cards))
     .catch((err) => res.send({ message: err.message }));
 
 };
@@ -47,7 +47,7 @@ module.exports.deleteLikeFromCard = (req, res) => {
   { $pull: { likes: req.user._id } },
   { new: true },
 )
-    .then((user) => res.send(user))
+    .then((cards) => res.send(cards))
     .catch((err) => res.send({ message: err.message }));
 
 };

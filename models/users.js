@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: {
     type: String,
-    required: false,
+    required: true,
   },
   about: {
     type: String,
