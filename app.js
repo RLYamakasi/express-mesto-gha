@@ -32,11 +32,20 @@ module.exports.createCard = (req, res) => {
 
 
 mongoose.connect('mongodb://localhost:27017/mestodb ',(err)=> {
-  if(!err) console.log("harosh");
-  else console.log("loh");
+  if(!err) console.log("Сервер запущен");
+  else console.log("ошибка");
   // app.use('/*', NotFoundController);
   app.use('/', routesUser);
   app.use('/', routesCard);
+  app.patch('/404', function (req, res) {
+    console.log("/user request called");
+    res.send({message:'Страница не найдена'})
+    .catch((err) => {
+      res
+        .status(404)
+        .send({ message: err.message});
+    });;
+});
 });
 
 
