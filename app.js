@@ -9,7 +9,12 @@ app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+// module.exports.Error= (req, res) => {
+//   console.log(req.user._id); // _id станет доступен
+// };
 
+
+// router.get('/users', Error);
 
 
 app.use((req, res, next) => {
@@ -30,6 +35,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb ',(err)=> {
   if(!err) console.log("harosh");
   else console.log("loh");
   // app.use('/*', NotFoundController);
+  router.get('/users', findUsers);
   app.use('/', routesUser);
   app.use('/', routesCard);
 });

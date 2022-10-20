@@ -26,13 +26,15 @@ module.exports.postCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   cards.findByIdAndRemove(req.params.cardId)
-  .then(cards => res.send({ cards }))
+  .then((cards) => {
+    if (!cards) {
+      return res.status(404).send({message:'Карточка по заданному id отсутствует в базе'})
+    }
+    return res.status(200).send({ cards})})
   .catch((err) => {
-    res
-      .status(400)
-      .send({ message: err.message });
-  });
-};
+    return res.status(400).send({ message: err.message })
+  })
+  };
 
 module.exports.setLikeToCard = (req, res) => {
   cards.findByIdAndUpdate(
