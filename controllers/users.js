@@ -25,15 +25,15 @@ module.exports.postUser = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   users.findById(req.params.id)
+    .orFail(() => {
+      const error = new Error('Пользователь по заданному id отсутствует в базе');
+      error.name = 'NotFoundError';
+      throw error;
+    })
     .then((user) => res.send({ user }))
     .catch((err) => {
-      res
-        .status(400)
-        .send({ message: err.message });
-      res
-        .status(404)
-        .send({ message: err.message });
-    });
+      res.send({ message: err.message});
+    })
 };
 
 module.exports.patchUserInfo = (req, res) => {
@@ -47,7 +47,7 @@ module.exports.patchUserInfo = (req, res) => {
     .catch((err) => {
       res
         .status(400)
-        .send({ message: err.message });
+        .send({ message: err.message});
     });
 };
 

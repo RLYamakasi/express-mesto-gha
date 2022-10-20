@@ -14,21 +14,29 @@ module.exports.findCards = (req, res) => {
 module.exports.postCard = (req, res) => {
   const {name,link,likes,createdAt} = req.body;
   const card = new cards({name,link,likes,createdAt});
-  console.log(`name = '${name}', link = '${link}', likes= '${likes}'.`)
   card
     .save()
     .then((cards) => res.send({ cards }))
-    .catch((err) => res.send({ message: err.message }));
-
-};
-
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(404).send({ message: err.message });
+        return;
+      }
+      res.status(500).send(err);
+    });
+  };
 
 module.exports.deleteCard = (req, res) => {
   cards.findByIdAndRemove(req.params.cardId)
   .then(cards => res.send({ cards }))
-  .catch(err => res.status(500).send({ message: 'Произошла ошибка' }));
+  .catch((err) => {
+    if (err.name === "CastError") {
+      res.status(404).send({ message: err.message });
+      return;
+    }
+    res.status(500).send(err);
+  });
 };
-
 module.exports.setLikeToCard = (req, res) => {
   cards.findByIdAndUpdate(
     req.params.cardId,
@@ -36,10 +44,14 @@ module.exports.setLikeToCard = (req, res) => {
     { new: true },
   )
     .then((cards) => res.send(cards))
-    .catch((err) => res.send({ message: err.message }));
-
-};
-
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(404).send({ message: err.message });
+        return;
+      }
+      res.status(500).send(err);
+    });
+  };
 
 module.exports.deleteLikeFromCard = (req, res) => {
   cards.findByIdAndUpdate(
@@ -48,6 +60,11 @@ module.exports.deleteLikeFromCard = (req, res) => {
   { new: true },
 )
     .then((cards) => res.send(cards))
-    .catch((err) => res.send({ message: err.message }));
-
-};
+    .catch((err) => {
+      if (err.name === "CastError") {
+        res.status(404).send({ message: err.message });
+        return;
+      }
+      res.status(500).send(err);
+    });
+  };
