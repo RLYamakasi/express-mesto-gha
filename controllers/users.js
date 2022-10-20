@@ -16,7 +16,11 @@ module.exports.postUser = (req, res) => {
   return user
     .save()
     .then((user) => res.send({ user }))
-    .catch((err) => res.send({ message: err.message }));
+    .catch((err) => {
+      res
+        .status(400)
+        .send({ message: err.message });
+    });
 };
 
 module.exports.getUserById = (req, res) => {
@@ -25,7 +29,10 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       res
         .status(400)
-        .send({ message: err.message });
+        .send({ 'message': 'Запрашиваемый пользователь не найден' });
+      res
+        .status(404)
+        .send({ 'message': 'Запрашиваемый пользователь не найден' });
     });
 };
 
@@ -37,7 +44,11 @@ module.exports.patchUserInfo = (req, res) => {
     { new: true },
   )
     .then((user) => res.send(user))
-    .catch((err) => res.send({ message: err.message }));
+    .catch((err) => {
+      res
+        .status(400)
+        .send({ message: err.message })
+    });
 };
 
 module.exports.patchUserAvatar = (req, res) => {

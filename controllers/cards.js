@@ -4,7 +4,6 @@ const express = require('express');
 const app = express()
 module.exports = router;
 
-
 module.exports.findCards = (req, res) => {
    cards.find({})
     .then((cards) => res.send({ cards }))
@@ -17,8 +16,9 @@ module.exports.postCard = (req, res) => {
   const card = new cards({name,link,likes,createdAt});
   console.log(`name = '${name}', link = '${link}', likes= '${likes}'.`)
   card
-  .save()
-  .catch((err) => console.log(err))
+    .save()
+    .then((user) => res.send({ user }))
+    .catch((err) => console.log(err))
 
 };
 
