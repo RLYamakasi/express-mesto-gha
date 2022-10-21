@@ -1,9 +1,12 @@
 const router = require('express').Router();
 const Users = require('../models/users');
 
-const {
-  ERROR_CODE, NOT_FOUND, BAD_REQ, STATUS_OK, ValidationError, CastError,
-} = require('../app');
+const ERROR_CODE = 400;
+const NOT_FOUND = 404;
+const BAD_REQ = 404;
+const STATUS_OK = 200;
+const ValidationError = 'ValidationError';
+const CastError = 'CastError';
 
 module.exports = router;
 

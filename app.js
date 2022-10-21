@@ -10,12 +10,7 @@ const app = express();
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true }));
 
-exports.ERROR_CODE = 400;
-exports.NOT_FOUND = 404;
-exports.BAD_REQ = 404;
-exports.STATUS_OK = 200;
-exports.ValidationError = 'ValidationError';
-exports.CastError = 'CastError';
+const BAD_REQ = 404;
 
 app.use((req, res, next) => {
   req.user = {
@@ -35,7 +30,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   app.use('/', routesUser);
   app.use('/', routesCard);
   app.use((req, res) => {
-    res.status(this.BAD_REQ).send({ message: '404 Page Not Found' });
+    res.status(BAD_REQ).send({ message: '404 Page Not Found' });
   });
 });
 
