@@ -1,8 +1,8 @@
-const {
-findUsers,postUser,getUserById,patchUserInfo,patchUserAvatar
-} = require('../controllers/users');
 const router = require('express').Router();
-const express = require('express');
+const {
+  findUsers, postUser, getUserById, patchUserInfo, patchUserAvatar,
+} = require('../controllers/users');
+
 module.exports = router;
 router.get('/users', findUsers);
 router.post('/users', postUser);

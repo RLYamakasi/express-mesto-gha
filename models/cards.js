@@ -15,7 +15,7 @@ const cardSchema = new mongoose.Schema({
     type: Array,
     default: [],
   },
-  createdAt : {
+  createdAt: {
     type: Date,
     default: Date.now,
   },

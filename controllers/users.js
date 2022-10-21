@@ -1,65 +1,93 @@
 const router = require('express').Router();
-const users = require('../models/users');
-const express = require('express');
-const app = express()
+const Users = require('../models/users');
+
 module.exports = router;
 
-
 module.exports.findUsers = (req, res) => {
-  users.find({})
+  Users.find({})
     .then((user) => res.send({ user }))
-    .catch((err) => res.send({ message: err.message }));
+    .catch((err) => res
+      .status(500)
+      .send({ message: err.message }));
 };
 
 module.exports.postUser = (req, res) => {
-  const {name,avatar,about} = req.body;
-  const user = new users({name,avatar,about});
+  const { name, avatar, about } = req.body;
+  const user = new Users({ name, avatar, about });
   return user
     .save()
-    .then((user) => res.send({ user }))
+    .then((users) => res.send({ users }))
     .catch((err) => {
-      res
-        .status(400)
+      if (err.name === 'ValidationError') {
+        return res
+          .status(400)
+          .send({ message: err.message });
+      }
+      return res
+        .status(500)
         .send({ message: err.message });
     });
 };
 
 module.exports.getUserById = (req, res) => {
-  users.findById(req.params.id)
+  Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({message:'Пользователь по заданному id отсутствует в базе'})
+        return res.status(404).send({ message: 'Пользователь по заданному id отсутствует в базе' });
       }
-      return res.status(200).send({ user })})
-    .catch((err) => {
-      return res.status(400).send({ message: err.message })
+      return res.status(200).send({ user });
     })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: err.message });
+      }
+      return res.status(500).send({ message: err.message });
+    });
 };
-
 module.exports.patchUserInfo = (req, res) => {
   const { name, about } = req.body;
-  users.findByIdAndUpdate(
+  Users.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true,
-      runValidators: true
+    {
+      new: true,
+      runValidators: true,
     },
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      res
-        .status(400)
-        .send({ message: err.message});
+      if (err.name === 'ValidationError') {
+        return res
+          .status(400)
+          .send({ message: err.message });
+      }
+      return res
+        .status(500)
+        .send({ message: err.message });
     });
 };
 
 module.exports.patchUserAvatar = (req, res) => {
   const { avatar } = req.body;
-  users.findByIdAndUpdate(
+  Users.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   )
     .then((user) => res.send(user))
-    .catch((err) => res.send({ message: err.message }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res
+          .status(400)
+          .send({ message: err.message });
+      }
+      return res
+        .status(500)
+        .send({ message: err.message });
+    });
 };
