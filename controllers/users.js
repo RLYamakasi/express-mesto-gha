@@ -1,13 +1,17 @@
 const router = require('express').Router();
 const Users = require('../models/users');
 
+const {
+  ERROR_CODE, NOT_FOUND, BAD_REQ, STATUS_OK, ValidationError, CastError,
+} = require('../app');
+
 module.exports = router;
 
 module.exports.findUsers = (req, res) => {
   Users.find({})
     .then((user) => res.send({ user }))
     .catch((err) => res
-      .status(500)
+      .status(BAD_REQ)
       .send({ message: err.message }));
 };
 
@@ -18,13 +22,13 @@ module.exports.postUser = (req, res) => {
     .save()
     .then((users) => res.send({ users }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === ValidationError) {
         return res
-          .status(400)
+          .status(ERROR_CODE)
           .send({ message: err.message });
       }
       return res
-        .status(500)
+        .status(BAD_REQ)
         .send({ message: err.message });
     });
 };
@@ -33,17 +37,17 @@ module.exports.getUserById = (req, res) => {
   Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь по заданному id отсутствует в базе' });
+        return res.status(NOT_FOUND).send({ message: 'Пользователь по заданному id отсутствует в базе' });
       }
-      return res.status(200).send({ user });
+      return res.status(STATUS_OK).send({ user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === CastError) {
         return res
-          .status(400)
+          .status(ERROR_CODE)
           .send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res.status(BAD_REQ).send({ message: err.message });
     });
 };
 module.exports.patchUserInfo = (req, res) => {
@@ -58,13 +62,13 @@ module.exports.patchUserInfo = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === ValidationError) {
         return res
-          .status(400)
+          .status(ERROR_CODE)
           .send({ message: err.message });
       }
       return res
-        .status(500)
+        .status(BAD_REQ)
         .send({ message: err.message });
     });
 };
@@ -81,13 +85,13 @@ module.exports.patchUserAvatar = (req, res) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === ValidationError) {
         return res
-          .status(400)
+          .status(ERROR_CODE)
           .send({ message: err.message });
       }
       return res
-        .status(500)
+        .status(BAD_REQ)
         .send({ message: err.message });
     });
 };
