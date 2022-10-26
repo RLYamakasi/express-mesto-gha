@@ -14,7 +14,7 @@ const BAD_REQ = 404;
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '634d9ee277f288e94364c73c',
+    _id: '6356ab00d3a479319ddfd197',
   };
 
   next();

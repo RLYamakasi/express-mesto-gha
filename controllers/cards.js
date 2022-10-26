@@ -3,7 +3,7 @@ const Cards = require('../models/cards');
 
 const ERROR_CODE = 400;
 const NOT_FOUND = 404;
-const BAD_REQ = 404;
+const BAD_REQ = 500;
 const STATUS_OK = 200;
 const ValidationError = 'ValidationError';
 const CastError = 'CastError';
