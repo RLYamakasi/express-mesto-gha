@@ -1,11 +1,11 @@
 const router = require('express').Router();
 const {
-  findUsers, register, getUserById, patchUserInfo, patchUserAvatar, login,
+  aboutMe, register, getUserById, patchUserInfo, patchUserAvatar, login,
 } = require('../controllers/users');
 
 module.exports = router;
 
-router.get('/users', findUsers);
+router.get('/users/me', aboutMe);
 router.post('/signin', login);
 router.post('/signup', register);
 router.get('/users/:id', getUserById);

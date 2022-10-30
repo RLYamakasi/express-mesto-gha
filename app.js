@@ -1,20 +1,22 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const routesUser = require('./routes/users');
 const routesCard = require('./routes/cards');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
 
-app.use(bodyParser.json()); // для собирания JSON-формата
+app.use(cookieParser());
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const BAD_REQ = 404;
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '6356ab00d3a479319ddfd197',
+    _id: '635c0adf1f9d3e6e232b8609',
   };
 
   next();

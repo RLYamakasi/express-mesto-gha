@@ -1,9 +1,9 @@
-const validator = require('validator');
 const jwt = require('jsonwebtoken');
+const validator = require('validator');
 const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
 const router = require('express').Router();
 const Users = require('../models/users');
+const { auth } = require('../middlewares/auth');
 
 const ERROR_CODE = 400;
 const ERROR_LOGIN = 401;
@@ -15,8 +15,9 @@ const CastError = 'CastError';
 
 module.exports = router;
 
-module.exports.findUsers = (req, res) => {
-  Users.find({})
+module.exports.aboutMe = (req, res) => {
+  auth();
+  Users.findById(req.user._id)
     .then((user) => res.send({ user }))
     .catch((err) => res
       .status(BAD_REQ)
@@ -32,28 +33,19 @@ module.exports.login = (req, res) => {
           .status(ERROR_CODE)
           .send({ message: 'Пользователь не найден' });
       }
-      bcrypt.compare(password, user.password);
-      const randomString = crypto
-        .randomBytes(16)
-        .toString('hex');
-      const token = jwt.sign(
-        { _id: user._id },
-        randomString,
-        { expiresIn: '7d' },
-      );
-      res
-        .cookie('jwt', token, {
-          maxAge: 3600000,
-          httpOnly: true,
+      bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return res
+              .status(ERROR_LOGIN)
+              .send({ message: 'Неправильные почта или пароль' });
+          }
+          const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+          res.cookie('token', token, {
+            httpOnly: true,
+          });
+          return res.send({ token });
         });
-      return res.send({ token });
-    })
-    .then((matched) => {
-      if (!matched) {
-        return res
-          .status(ERROR_LOGIN)
-          .send({ message: 'Неправильные почта или пароль' });
-      }
     })
     .catch((err) => {
       res
