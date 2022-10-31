@@ -3,7 +3,6 @@ const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const router = require('express').Router();
 const Users = require('../models/users');
-const { auth } = require('../middlewares/auth');
 
 const ERROR_CODE = 400;
 const ERROR_LOGIN = 401;
@@ -16,8 +15,8 @@ const CastError = 'CastError';
 module.exports = router;
 
 module.exports.aboutMe = (req, res) => {
-  auth();
-  Users.findById(req.user._id)
+  console.log(req.user._id);
+  Users.findOne({ _id: req.user._id })
     .then((user) => res.send({ user }))
     .catch((err) => res
       .status(BAD_REQ)
@@ -26,7 +25,7 @@ module.exports.aboutMe = (req, res) => {
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
-  Users.findOne({ email })
+  Users.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         return res
@@ -128,6 +127,7 @@ module.exports.getUserById = (req, res) => {
       return res.status(BAD_REQ).send({ message: err.message });
     });
 };
+
 module.exports.patchUserInfo = (req, res) => {
   const { name, about } = req.body;
   Users.findByIdAndUpdate(

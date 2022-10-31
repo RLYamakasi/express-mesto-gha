@@ -1,15 +1,19 @@
 const jwt = require('jsonwebtoken');
 
-module.exports.auth = (req, res) => {
+const router = require('express').Router();
+
+module.exports.auth = (req, res, next) => {
   const cookie = req.cookies.token;
-  console.log(req.cookies.token);
   try {
-    const check = jwt.verify(cookie, 'some-secret-key');
-    console.log('token: ', check);
-    if (!check) {
+    const tokenCheck = jwt.verify(cookie, 'some-secret-key');
+    if (!tokenCheck) {
       return res.status(500).send({ message: 'noo' });
     }
+    req.user = tokenCheck;
+    next();
   } catch (err) {
     return res.status(400).send({ message: err });
   }
 };
+
+module.exports = router;
