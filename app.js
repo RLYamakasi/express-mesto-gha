@@ -1,12 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
-const router = require('express').Router();
 const cookieParser = require('cookie-parser');
+const { auth } = require('./middlewares/auth');
 const routesUser = require('./routes/users');
 const routesCard = require('./routes/cards');
-const auth = require('./middlewares/auth');
+const {
+  login, register,
+} = require('./controllers/users');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -24,6 +25,8 @@ module.exports.createCard = (req) => {
 mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   if (!err) console.log('сервер запущен');
   else console.log('ошибка');
+  app.post('/signin', login);
+  app.post('/signup', register);
   app.use('/', auth, routesUser);
   app.use('/', auth, routesCard);
   app.use((req, res) => {

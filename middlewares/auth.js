@@ -1,9 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-const router = require('express').Router();
-
 module.exports.auth = (req, res, next) => {
   const cookie = req.cookies.token;
+  console.log(cookie);
   try {
     const tokenCheck = jwt.verify(cookie, 'some-secret-key');
     if (!tokenCheck) {
@@ -12,8 +11,6 @@ module.exports.auth = (req, res, next) => {
     req.user = tokenCheck;
     next();
   } catch (err) {
-    return res.status(400).send({ message: err });
+    return res.status(401).send({ message: err });
   }
 };
-
-module.exports = router;
