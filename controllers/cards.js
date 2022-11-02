@@ -1,21 +1,11 @@
 const router = require('express').Router();
 const Cards = require('../models/cards');
 
-const ERROR_CODE = 400;
-const NOT_FOUND = 404;
-const BAD_REQ = 500;
-const STATUS_OK = 200;
-const ValidationError = 'ValidationError';
-const CastError = 'CastError';
-
 module.exports = router;
 
 module.exports.findCards = (req, res) => {
   Cards.find({})
-    .then((card) => res.send({ card }))
-    .catch((err) => res
-      .status(BAD_REQ)
-      .send({ message: err.message }));
+    .then((card) => res.send({ card }));
 };
 
 module.exports.postCard = (req, res) => {
@@ -23,34 +13,17 @@ module.exports.postCard = (req, res) => {
   const card = new Cards({ name, link, likes });
   card
     .save()
-    .then((cards) => res.send({ cards }))
-    .catch((err) => {
-      if (err.name === ValidationError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res
-        .status(BAD_REQ)
-        .send({ message: err.message });
-    });
+    .then((cards) => res.send({ cards }));
 };
 
 module.exports.deleteCard = (req, res) => {
-  Cards.findByIdAndRemove(req.params.cardId)
+  Cards.findById(req.params.cardId)
     .then((cards) => {
       if (!cards) {
         return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
+      cards.remove();
       return res.status(STATUS_OK).send({ cards });
-    })
-    .catch((err) => {
-      if (err.name === CastError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res.status(BAD_REQ).send({ message: err.message });
     });
 };
 
@@ -68,14 +41,6 @@ module.exports.setLikeToCard = (req, res) => {
         return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
       return res.status(STATUS_OK).send({ cards });
-    })
-    .catch((err) => {
-      if (err.name === CastError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res.status(BAD_REQ).send({ message: err.message });
     });
 };
 
@@ -93,13 +58,5 @@ module.exports.deleteLikeFromCard = (req, res) => {
         return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
       return res.status(STATUS_OK).send({ cards });
-    })
-    .catch((err) => {
-      if (err.name === CastError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res.status(BAD_REQ).send({ message: err.message });
     });
 };

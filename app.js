@@ -5,8 +5,9 @@ const cookieParser = require('cookie-parser');
 const { auth } = require('./middlewares/auth');
 const routesUser = require('./routes/users');
 const routesCard = require('./routes/cards');
+const { errorHandler } = require('./errors');
 const {
-  login, register,
+  login, register, validate,
 } = require('./controllers/users');
 
 const PORT = process.env.PORT || 3000;
@@ -25,13 +26,11 @@ module.exports.createCard = (req) => {
 mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   if (!err) console.log('сервер запущен');
   else console.log('ошибка');
-  app.post('/signin', login);
-  app.post('/signup', register);
+  app.use('/', errorHandler);
+  app.post('/signin', validate, login);
+  app.post('/signup', validate, register);
   app.use('/', auth, routesUser);
   app.use('/', auth, routesCard);
-  app.use((req, res) => {
-    res.status(BAD_REQ).send({ message: '404 Page Not Found' });
-  });
 });
 
 app.listen(PORT, () => {

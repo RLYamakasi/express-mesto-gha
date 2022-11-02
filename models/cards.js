@@ -19,6 +19,10 @@ const cardSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  owner: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('card', cardSchema);

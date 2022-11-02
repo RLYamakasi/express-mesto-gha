@@ -1,24 +1,25 @@
 const jwt = require('jsonwebtoken');
-const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const Users = require('../models/users');
+const { userValidate } = require('../Validations/user');
 
-const ERROR_CODE = 400;
-const ERROR_LOGIN = 401;
-const NOT_FOUND = 404;
-const EMAIL_IN_BASE = 409;
-const BAD_REQ = 500;
-const STATUS_OK = 200;
-const ValidationError = 'ValidationError';
-const CastError = 'CastError';
+module.exports.validate = (req, res, next) => {
+  const { error } = userValidate(req.body);
+  if (error) {
+    return res.status(400).json({ message: 'ошибка валидации' });
+  }
+  next();
+};
+
+module.exports.findUsers = (req, res) => {
+  Users.find({})
+    .then((user) => res.send({ user }));
+};
 
 module.exports.aboutMe = (req, res) => {
   console.log(req.user);
   Users.findOne({ _id: req.user._id })
-    .then((user) => res.send({ user }))
-    .catch((err) => res
-      .status(BAD_REQ)
-      .send({ message: err.message }));
+    .then((user) => res.send({ user }));
 };
 
 module.exports.login = (req, res) => {
@@ -27,14 +28,14 @@ module.exports.login = (req, res) => {
     .then((user) => {
       if (!user) {
         return res
-          .status(ERROR_LOGIN)
+          .status(409)
           .send({ message: 'Пользователь не найден' });
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             return res
-              .status(ERROR_LOGIN)
+              .status(409)
               .send({ message: 'Неправильные почта или пароль' });
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
@@ -43,11 +44,6 @@ module.exports.login = (req, res) => {
           });
           return res.send({ token });
         });
-    })
-    .catch((err) => {
-      res
-        .status(BAD_REQ)
-        .send({ message: err.message });
     });
 };
 
@@ -55,37 +51,18 @@ module.exports.register = (req, res) => {
   const {
     name, avatar, about, email, password,
   } = req.body;
-  Users.findOne({ email })
-    .then((user) => {
-      if (user) {
-        res
-          .status(EMAIL_IN_BASE)
-          .send({ message: 'Почта уже зарегистрирована' });
-      } else {
-        if (!validator.isEmail(email)) {
-          return res
-            .status(ERROR_CODE)
-            .send({ message: 'Неправильные почта или пароль' });
-        }
-        return bcrypt.hash(password, 10)
-          .then((hash) => Users.create({
-            email,
-            password: hash,
-            name,
-            avatar,
-            about,
-          }))
-          .then((users) => res.send({ message: 'вы зарегистрировались' }))
-          .catch((err) => {
-            if (err.name === ValidationError) {
-              return res
-                .status(ERROR_CODE)
-                .send({ message: err.message });
-            }
-            return res
-              .status(BAD_REQ)
-              .send({ message: err.message });
-          });
+  bcrypt.hash(password, 10)
+    .then((hash) => Users.create({
+      email,
+      password: hash,
+      name,
+      avatar,
+      about,
+    }))
+    .then((users) => res.send({ message: 'вы зарегистрировались' }))
+    .catch((err) => {
+      if (err.code === 11000) {
+        res.send({ message: 'email уже зарегистрирован' });
       }
     });
 };
@@ -94,17 +71,9 @@ module.exports.getUserById = (req, res) => {
   Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(NOT_FOUND).send({ message: 'Пользователь по заданному id отсутствует в базе' });
+        return res.status(404).send({ message: 'Пользователь по заданному id отсутствует в базе' });
       }
-      return res.status(STATUS_OK).send({ user });
-    })
-    .catch((err) => {
-      if (err.name === CastError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res.status(BAD_REQ).send({ message: err.message });
+      return res.status(200).send({ user });
     });
 };
 
@@ -118,17 +87,7 @@ module.exports.patchUserInfo = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === ValidationError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res
-        .status(BAD_REQ)
-        .send({ message: err.message });
-    });
+    .then((user) => res.send(user));
 };
 
 module.exports.patchUserAvatar = (req, res) => {
@@ -141,15 +100,5 @@ module.exports.patchUserAvatar = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === ValidationError) {
-        return res
-          .status(ERROR_CODE)
-          .send({ message: err.message });
-      }
-      return res
-        .status(BAD_REQ)
-        .send({ message: err.message });
-    });
+    .then((user) => res.send(user));
 };
