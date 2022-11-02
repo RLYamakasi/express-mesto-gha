@@ -20,10 +20,10 @@ module.exports.deleteCard = (req, res) => {
   Cards.findById(req.params.cardId)
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
       cards.remove();
-      return res.status(STATUS_OK).send({ cards });
+      return res.status(200).send({ cards });
     });
 };
 
@@ -38,9 +38,9 @@ module.exports.setLikeToCard = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
-      return res.status(STATUS_OK).send({ cards });
+      return res.status(200).send({ cards });
     });
 };
 
@@ -55,8 +55,8 @@ module.exports.deleteLikeFromCard = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(NOT_FOUND).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
       }
-      return res.status(STATUS_OK).send({ cards });
+      return res.status(200).send({ cards });
     });
 };
