@@ -17,8 +17,6 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const BAD_REQ = 404;
-
 module.exports.createCard = (req) => {
   console.log(req.user._id);
 };

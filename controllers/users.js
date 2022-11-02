@@ -8,7 +8,7 @@ module.exports.validate = (req, res, next) => {
   if (error) {
     return res.status(400).json({ message: 'ошибка валидации' });
   }
-  next();
+  return next();
 };
 
 module.exports.findUsers = (req, res) => {
