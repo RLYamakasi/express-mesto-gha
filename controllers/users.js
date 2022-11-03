@@ -5,6 +5,7 @@ const { userValidate } = require('../Validations/user');
 const BadRequestError = require('../errors/badreq');
 const AuthError = require('../errors/autherror');
 const NotFound = require('../errors/notfound');
+const ErrorLogin = require('../errors/errorlogin');
 
 module.exports.validate = (req, res, next) => {
   const { error } = userValidate(req.body);
@@ -14,17 +15,16 @@ module.exports.validate = (req, res, next) => {
   return next();
 };
 
-module.exports.findUsers = (req, res) => {
+module.exports.findUsers = (req, res, next) => {
   Users.find({})
-    .then((user) => res.send({ user }));
+    .then((user) => res.send({ user }))
+    .catch(next);
 };
 
 module.exports.aboutMe = (req, res, next) => {
   Users.findOne({ _id: req.user._id })
     .then((user) => res.send({ user }))
-    .catch((err) => {
-      next(new BadRequestError('Что-то пошло не так'));
-    });
+    .catch(next);
 };
 
 module.exports.login = (req, res, next) => {
@@ -32,12 +32,12 @@ module.exports.login = (req, res, next) => {
   Users.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new BadRequestError('Что-то пошло не так'));
+        return next(new ErrorLogin('Что-то пошло не так'));
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            next(new AuthError('Неправильные почта или пароль'));
+            return next(new AuthError('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('token', token, {
@@ -46,13 +46,7 @@ module.exports.login = (req, res, next) => {
           return res.send({ token });
         });
     })
-    .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new BadRequestError('Что-то пошло не так'));
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.register = (req, res, next) => {
@@ -69,6 +63,9 @@ module.exports.register = (req, res, next) => {
     }))
     .then((users) => res.send({ message: users }))
     .catch((err) => {
+      if (err.name === 'validationError') {
+        next(new BadRequestError('Что-то пошло не так'));
+      }
       if (err.code === 11000) {
         next(new AuthError('Email зарегистрирован'));
       } else {
@@ -84,10 +81,11 @@ module.exports.getUserById = (req, res, next) => {
         next(new NotFound('Пользователь не найден'));
       }
       return res.status(200).send({ user });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.patchUserInfo = (req, res) => {
+module.exports.patchUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   Users.findByIdAndUpdate(
     req.user._id,
@@ -97,10 +95,17 @@ module.exports.patchUserInfo = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send(user));
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'validationError') {
+        next(new BadRequestError('Что-то пошло не так'));
+      } else {
+        next(err);
+      }
+    });
 };
 
-module.exports.patchUserAvatar = (req, res) => {
+module.exports.patchUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   Users.findByIdAndUpdate(
     req.user._id,
@@ -110,5 +115,12 @@ module.exports.patchUserAvatar = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send(user));
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'validationError') {
+        next(new BadRequestError('Что-то пошло не так'));
+      } else {
+        next(err);
+      }
+    });
 };
