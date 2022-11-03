@@ -9,6 +9,7 @@ module.exports = router;
 
 module.exports.validateCard = (req, res, next) => {
   const { error } = cardValidate(req.body);
+  console.log(error);
   if (error) {
     next(new BadRequestError('Ошибка валидации'));
   }

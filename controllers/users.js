@@ -9,6 +9,7 @@ const ErrorLogin = require('../errors/errorlogin');
 
 module.exports.validate = (req, res, next) => {
   const { error } = userValidate(req.body);
+  console.log(error);
   if (error) {
     next(new BadRequestError('Ошибка валидации'));
   }
