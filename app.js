@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { auth } = require('./middlewares/auth');
-const { userValidate } = require('./Validations/user');
+const { userValidateLogin, userValidateRegistration } = require('./Validations/user');
 const routesUser = require('./routes/users');
 const routesCard = require('./routes/cards');
 const { errorHandler } = require('./errors/handler');
@@ -24,8 +24,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   if (!err) console.log('сервер запущен');
   else console.log('ошибка');
 
-  app.post('/signin', userValidate, login);
-  app.post('/signup', userValidate, register);
+  app.post('/signin', userValidateLogin, login);
+  app.post('/signup', userValidateRegistration, register);
   app.use('/', auth, routesUser);
   app.use('/', auth, routesCard);
   app.use((req, res, next) => {
