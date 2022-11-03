@@ -69,6 +69,7 @@ module.exports.register = (req, res, next) => {
       if (err.code === 11000) {
         next(new AuthError('Email зарегистрирован'));
       } else {
+        console.log(err)
         next(err);
       }
     });
