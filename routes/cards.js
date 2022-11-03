@@ -1,8 +1,7 @@
 const router = require('express').Router();
 const {
-  findCards, postCard, deleteCard, setLikeToCard, deleteLikeFromCard,
+  findCards, postCard, deleteCard, setLikeToCard, deleteLikeFromCard, validateCard,
 } = require('../controllers/cards');
-const { validateCard } = require('../controllers/users');
 
 module.exports = router;
 

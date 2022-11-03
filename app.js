@@ -22,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   if (!err) console.log('сервер запущен');
   else console.log('ошибка');
+
   app.post('/signin', validate, login);
   app.post('/signup', validate, register);
   app.use('/', auth, routesUser);
