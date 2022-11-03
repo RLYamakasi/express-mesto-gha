@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Cards = require('../models/cards');
+const NotFound = require('../errors/notfound');
 
 module.exports = router;
 
@@ -16,18 +17,18 @@ module.exports.postCard = (req, res) => {
     .then((cards) => res.send({ cards }));
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Cards.findById(req.params.cardId)
     .then((cards) => {
       if (!cards) {
-        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        next(new NotFound('карточка не найдена'));
       }
       cards.remove();
       return res.status(200).send({ cards });
     });
 };
 
-module.exports.setLikeToCard = (req, res) => {
+module.exports.setLikeToCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -38,13 +39,13 @@ module.exports.setLikeToCard = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        next(new NotFound('карточка не найдена'));
       }
       return res.status(200).send({ cards });
     });
 };
 
-module.exports.deleteLikeFromCard = (req, res) => {
+module.exports.deleteLikeFromCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -55,7 +56,7 @@ module.exports.deleteLikeFromCard = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        return res.status(404).send({ message: 'Карточка по заданному id отсутствует в базе' });
+        next(new NotFound('карточка не найдена'));
       }
       return res.status(200).send({ cards });
     });

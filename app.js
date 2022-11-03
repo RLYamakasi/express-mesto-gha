@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const { auth } = require('./middlewares/auth');
 const routesUser = require('./routes/users');
 const routesCard = require('./routes/cards');
-const { errorHandler } = require('./errors');
+const { errorHandler } = require('./errors/handler');
 const {
   login, register, validate,
 } = require('./controllers/users');

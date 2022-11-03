@@ -2,11 +2,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Users = require('../models/users');
 const { userValidate } = require('../Validations/user');
+const BadRequestError = require('../errors/badreq');
+const AuthError = require('../errors/autherror');
+const NotFound = require('../errors/notfound');
 
 module.exports.validate = (req, res, next) => {
   const { error } = userValidate(req.body);
   if (error) {
-    return res.status(400).json({ message: 'ошибка валидации' });
+    next(new BadRequestError('Ошибка валидации'));
   }
   return next();
 };
@@ -16,27 +19,25 @@ module.exports.findUsers = (req, res) => {
     .then((user) => res.send({ user }));
 };
 
-module.exports.aboutMe = (req, res) => {
-  console.log(req.user);
+module.exports.aboutMe = (req, res, next) => {
   Users.findOne({ _id: req.user._id })
-    .then((user) => res.send({ user }));
+    .then((user) => res.send({ user }))
+    .catch((err) => {
+      next(new BadRequestError('Что-то пошло не так'));
+    });
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   Users.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return res
-          .status(409)
-          .send({ message: 'Пользователь не найден' });
+        next(new BadRequestError('Что-то пошло не так'));
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return res
-              .status(409)
-              .send({ message: 'Неправильные почта или пароль' });
+            next(new AuthError('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('token', token, {
@@ -44,10 +45,17 @@ module.exports.login = (req, res) => {
           });
           return res.send({ token });
         });
+    })
+    .catch((err) => {
+      if (err.name === 'validationError') {
+        next(new BadRequestError('Что-то пошло не так'));
+      } else {
+        next(err);
+      }
     });
 };
 
-module.exports.register = (req, res) => {
+module.exports.register = (req, res, next) => {
   const {
     name, avatar, about, email, password,
   } = req.body;
@@ -59,19 +67,21 @@ module.exports.register = (req, res) => {
       avatar,
       about,
     }))
-    .then((users) => res.send({ message: 'вы зарегистрировались' }))
+    .then((users) => res.send({ message: users }))
     .catch((err) => {
       if (err.code === 11000) {
-        res.send({ message: 'email уже зарегистрирован' });
+        next(new AuthError('Email зарегистрирован'));
+      } else {
+        next(err);
       }
     });
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: 'Пользователь по заданному id отсутствует в базе' });
+        next(new NotFound('Пользователь не найден'));
       }
       return res.status(200).send({ user });
     });
