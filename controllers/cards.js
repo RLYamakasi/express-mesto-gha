@@ -1,20 +1,10 @@
 const router = require('express').Router();
 const Cards = require('../models/cards');
 const NotFound = require('../errors/notfound');
-const { cardValidate } = require('../Validations/cards');
 const BadRequestError = require('../errors/badreq');
 const ForbidenError = require('../errors/badreq');
 
 module.exports = router;
-
-module.exports.validateCard = (req, res, next) => {
-  const { error } = cardValidate(req.body);
-  console.log(error);
-  if (error) {
-    next(new BadRequestError('Ошибка валидации'));
-  }
-  return next();
-};
 
 module.exports.findCards = (req, res, next) => {
   Cards.find({})
@@ -33,7 +23,7 @@ module.exports.postCard = (req, res, next) => {
     .then((cards) => res.send({ cards }))
     .catch((err) => {
       console.log(err);
-      if (err.name === 'validationError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {
         next(err);
@@ -45,10 +35,10 @@ module.exports.deleteCard = (req, res, next) => {
   Cards.findById(req.params.cardId)
     .then((cards) => {
       if (!cards) {
-        next(new NotFound('карточка не найдена'));
+        return next(new NotFound('карточка не найдена'));
       }
-      if (!cards.owner === req.user._id) {
-        next(new ForbidenError('Нельзя удалять чужую карточку'));
+      if (!cards.owner.equals(req.user._id)) {
+        return next(new ForbidenError('Нельзя удалять чужую карточку'));
       }
       return cards.remove()
         .then(() => res.status(200).send({ cards }));
@@ -67,7 +57,7 @@ module.exports.setLikeToCard = (req, res, next) => {
   )
     .then((cards) => {
       if (!cards) {
-        next(new NotFound('карточка не найдена'));
+        return next(new NotFound('карточка не найдена'));
       }
       return res.status(200).send({ cards });
     })
@@ -85,7 +75,7 @@ module.exports.deleteLikeFromCard = (req, res, next) => {
   )
     .then((cards) => {
       if (!cards) {
-        next(new NotFound('карточка не найдена'));
+        return next(new NotFound('карточка не найдена'));
       }
       return res.status(200).send({ cards });
     })

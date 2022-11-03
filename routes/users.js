@@ -1,8 +1,9 @@
 const { celebrate, Joi, Segments } = require('celebrate');
 const router = require('express').Router();
 const {
-  aboutMe, getUserById, patchUserInfo, patchUserAvatar, findUsers, validatePatch,
+  aboutMe, getUserById, patchUserInfo, patchUserAvatar, findUsers,
 } = require('../controllers/users');
+const { ValidateNameAndAbout, ValidateAvatar } = require('../Validations/user');
 
 module.exports = router;
 
@@ -13,5 +14,5 @@ router.get('/users/:id', celebrate({
     id: Joi.string().length(24).hex().required(),
   }),
 }), getUserById);
-router.patch('/users/me', validatePatch, patchUserInfo);
-router.patch('/users/me/avatar', validatePatch, patchUserAvatar);
+router.patch('/users/me', ValidateNameAndAbout, patchUserInfo);
+router.patch('/users/me/avatar', ValidateAvatar, patchUserAvatar);

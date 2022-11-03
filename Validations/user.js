@@ -1,21 +1,40 @@
-const Joi = require('joi');
+const { celebrate, Joi } = require('celebrate');
 
-exports.userValidate = (data) => {
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^(http|https):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
-  });
-  return schema.validate(data);
-};
+exports.userValidate = celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().email()
+      .messages({
+        'string.empty': 'Поле "email" должно быть заполнено',
+      }),
+    password: Joi.string().required()
+      .messages({
+        'string.empty': 'Поле "password" должно быть заполнено',
+      }),
+  }),
+});
 
-exports.patchValidate = (data) => {
-  const schema = Joi.object({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(/^(http|https):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
-  });
-  return schema.validate(data);
-};
+exports.ValidateNameAndAbout = celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().required().min(2).max(30)
+      .messages({
+        'string.min': 'Минимальная длина поля "name" - 2',
+        'string.max': 'Максимальная длина поля "name" - 30',
+        'string.empty': 'Поле "name" должно быть заполнено',
+      }),
+    about: Joi.string().required().min(2).max(30)
+      .messages({
+        'string.min': 'Минимальная длина поля "about" - 2',
+        'string.max': 'Максимальная длина поля "about" - 30',
+        'string.empty': 'Поле "about" должно быть заполнено',
+      }),
+  }),
+});
+
+exports.ValidateAvatar = celebrate({
+  body: Joi.object().keys({
+    avatar: Joi.string().pattern(/^(http|https):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i)
+      .messages({
+        'string.empty': 'Поле "link" должно быть заполнено',
+      }),
+  }),
+});

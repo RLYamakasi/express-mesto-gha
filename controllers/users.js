@@ -1,30 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Users = require('../models/users');
-const { patchValidate } = require('../Validations/user');
-const { userValidate } = require('../Validations/user');
 const BadRequestError = require('../errors/badreq');
 const AuthError = require('../errors/autherror');
 const NotFound = require('../errors/notfound');
 const ErrorLogin = require('../errors/errorlogin');
-
-module.exports.validate = (req, res, next) => {
-  const { error } = userValidate(req.body);
-  console.log(error);
-  if (error) {
-    next(new BadRequestError('Ошибка валидации'));
-  }
-  return next();
-};
-
-module.exports.validatePatch = (req, res, next) => {
-  const { error } = patchValidate(req.body);
-  console.log(error);
-  if (error) {
-    next(new BadRequestError('Ошибка валидации'));
-  }
-  return next();
-};
 
 module.exports.findUsers = (req, res, next) => {
   Users.find({})
@@ -43,12 +23,12 @@ module.exports.login = (req, res, next) => {
   Users.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return next(new ErrorLogin('Что-то пошло не так'));
+        return next(new ErrorLogin('Неверный логин или пароль'));
       }
       bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return next(new AuthError('Неправильные почта или пароль'));
+            return next(new ErrorLogin('Неправильные почта или пароль'));
           }
           const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
           res.cookie('token', token, {
@@ -72,15 +52,16 @@ module.exports.register = (req, res, next) => {
       avatar,
       about,
     }))
-    .then((users) => res.send({ message: users }))
+    .then(() => res.send({
+      name, about, avatar, email,
+    }))
     .catch((err) => {
-      if (err.name === 'validationError') {
-        next(new BadRequestError('Что-то пошло не так'));
+      if (err.name === 'ValidationError') {
+        return next(new BadRequestError('Что-то пошло не так'));
       }
       if (err.code === 11000) {
         next(new AuthError('Email зарегистрирован'));
       } else {
-        console.log(err)
         next(err);
       }
     });
@@ -90,7 +71,7 @@ module.exports.getUserById = (req, res, next) => {
   Users.findById(req.params.id)
     .then((user) => {
       if (!user) {
-        next(new NotFound('Пользователь не найден'));
+        return next(new NotFound('Пользователь не найден'));
       }
       return res.status(200).send({ user });
     })
@@ -111,7 +92,7 @@ module.exports.patchUserInfo = (req, res, next) => {
     .then((user) => res.send(user))
     .catch((err) => {
       console.log(err);
-      if (err.name === 'validationError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {
         next(err);
@@ -131,7 +112,7 @@ module.exports.patchUserAvatar = (req, res, next) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      if (err.name === 'validationError') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {
         next(err);
