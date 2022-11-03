@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Cards = require('../models/cards');
 const NotFound = require('../errors/notfound');
-const { cardValidate } = require('../Validations/user');
+const { cardValidate } = require('../Validations/cards');
 const BadRequestError = require('../errors/badreq');
 const ForbidenError = require('../errors/badreq');
 
@@ -32,6 +32,7 @@ module.exports.postCard = (req, res, next) => {
     .save()
     .then((cards) => res.send({ cards }))
     .catch((err) => {
+      console.log(err);
       if (err.name === 'validationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {

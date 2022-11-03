@@ -7,7 +7,15 @@ exports.userValidate = (data) => {
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(/^(http|https):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
-    // _id: Joi.string().length(24).hex().required(),
+  });
+  return schema.validate(data);
+};
+
+exports.patchValidate = (data) => {
+  const schema = Joi.object({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(/^(http|https):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)/i),
   });
   return schema.validate(data);
 };

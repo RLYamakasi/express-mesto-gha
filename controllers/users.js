@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Users = require('../models/users');
+const { patchValidate } = require('../Validations/user');
 const { userValidate } = require('../Validations/user');
 const BadRequestError = require('../errors/badreq');
 const AuthError = require('../errors/autherror');
@@ -9,6 +10,15 @@ const ErrorLogin = require('../errors/errorlogin');
 
 module.exports.validate = (req, res, next) => {
   const { error } = userValidate(req.body);
+  console.log(error);
+  if (error) {
+    next(new BadRequestError('Ошибка валидации'));
+  }
+  return next();
+};
+
+module.exports.validatePatch = (req, res, next) => {
+  const { error } = patchValidate(req.body);
   console.log(error);
   if (error) {
     next(new BadRequestError('Ошибка валидации'));
@@ -89,6 +99,7 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.patchUserInfo = (req, res, next) => {
   const { name, about } = req.body;
+  console.log(name, about);
   Users.findByIdAndUpdate(
     req.user._id,
     { name, about },
@@ -99,6 +110,7 @@ module.exports.patchUserInfo = (req, res, next) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
+      console.log(err);
       if (err.name === 'validationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {
