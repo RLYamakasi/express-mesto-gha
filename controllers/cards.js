@@ -1,10 +1,7 @@
-const router = require('express').Router();
 const Cards = require('../models/cards');
 const NotFound = require('../errors/notfound');
 const BadRequestError = require('../errors/badreq');
-const ForbidenError = require('../errors/badreq');
-
-module.exports = router;
+const ForbidenError = require('../errors/forbiddenerror');
 
 module.exports.findCards = (req, res, next) => {
   Cards.find({})

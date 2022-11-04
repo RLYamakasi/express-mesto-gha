@@ -25,7 +25,7 @@ module.exports.login = (req, res, next) => {
       if (!user) {
         return next(new ErrorLogin('Неверный логин или пароль'));
       }
-      bcrypt.compare(password, user.password)
+      return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
             return next(new ErrorLogin('Неправильные почта или пароль'));
@@ -60,10 +60,10 @@ module.exports.register = (req, res, next) => {
         return next(new BadRequestError('Что-то пошло не так'));
       }
       if (err.code === 11000) {
-        next(new AuthError('Email зарегистрирован'));
-      } else {
-        next(err);
+        return next(new AuthError('Email зарегистрирован'));
       }
+      return next(err);
+      // здесь нельзя поставить else, потому что linter будет ругаться
     });
 };
 

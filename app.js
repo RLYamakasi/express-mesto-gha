@@ -28,11 +28,11 @@ mongoose.connect('mongodb://localhost:27017/mestodb ', (err) => {
   app.post('/signup', userValidateRegistration, register);
   app.use('/', auth, routesUser);
   app.use('/', auth, routesCard);
-  app.use((req, res, next) => {
+  app.use(auth, (req, res, next) => {
     next(new NotFound('Маршрут не найден'));
   });
   app.use(errors());
-  app.use('/', auth, errorHandler);
+  app.use('/', errorHandler);
 });
 
 app.listen(PORT, () => {
