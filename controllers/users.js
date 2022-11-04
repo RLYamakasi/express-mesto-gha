@@ -80,7 +80,6 @@ module.exports.getUserById = (req, res, next) => {
 
 module.exports.patchUserInfo = (req, res, next) => {
   const { name, about } = req.body;
-  console.log(name, about);
   Users.findByIdAndUpdate(
     req.user._id,
     { name, about },
@@ -91,7 +90,6 @@ module.exports.patchUserInfo = (req, res, next) => {
   )
     .then((user) => res.send(user))
     .catch((err) => {
-      console.log(err);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {

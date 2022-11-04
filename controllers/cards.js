@@ -19,7 +19,6 @@ module.exports.postCard = (req, res, next) => {
     .save()
     .then((cards) => res.send({ cards }))
     .catch((err) => {
-      console.log(err);
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Что-то пошло не так'));
       } else {

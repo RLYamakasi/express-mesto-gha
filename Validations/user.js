@@ -29,7 +29,6 @@ exports.userValidateRegistration = celebrate({
   }),
 });
 
-
 exports.userValidateLogin = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email()
